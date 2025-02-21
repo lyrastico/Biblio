@@ -1,0 +1,36 @@
+services:
+  mongodb3:
+    image: mongo
+    container_name: mongodb3
+    restart: always
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-data:/data/db
+
+  backend:
+    build: ./backend
+    container_name: backend
+    restart: always
+    ports:
+      - "5000:5000"
+    depends_on:
+      - mongodb3
+    environment:
+      - MONGO_URI=mongodb://mongodb3:27017/biblio
+      - PORT=5000
+      - JWT_SECRET=supersecretkey
+
+  frontend:
+    build: ./frontend
+    container_name: frontend
+    restart: always
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
+    environment:
+      - REACT_APP_BACKEND_URL=http://backend:5000
+
+volumes:
+  mongo-data:
